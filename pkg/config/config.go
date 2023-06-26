@@ -7,8 +7,6 @@ import (
 )
 
 const (
-	defaultLogLevel             = "info"
-	defaultLogFormat            = "json"
 	defaultAddr                 = "0.0.0.0:8000"
 	defaultRemoteTimeout        = 30 * time.Second
 	defaultServerReadTimeout    = 2 * time.Minute
@@ -22,12 +20,12 @@ const (
 	defaultDBHostName           = "localhost"
 	defaultDBPort               = 3306
 	defaultDBDatabaseName       = "database"
+	defaultHostImageDirectory   = "/etc/images"
+	defaultLocalImageDirectory  = "/images"
 )
 
 type Config struct {
 	Addr                 string        `env:"ADDR"` // e.g. 0.0.0.0:8000
-	LogLevel             string        `env:"LOG_LEVEL" validate:"oneof=debug info warn error fatal panic"`
-	LogFormat            string        `env:"LOG_FORMAT" validate:"oneof=text console json"`
 	ServerReadTimeout    time.Duration `env:"SERVER_READ_TIMEOUT"`
 	ServerWriteTimeout   time.Duration `env:"SERVER_WRITE_TIMEOUT"`
 	ServerIdleTimeout    time.Duration `env:"SERVER_IDLE_TIMEOUT"`
@@ -39,13 +37,13 @@ type Config struct {
 	DBMaxIdleConnections int           `env:"DB_MAX_IDLE_CONNECTIONS"`
 	DBMaxOpenConnections int           `env:"DB_MAX_OPEN_CONNECTIONS"`
 	DBMaxConnLifetime    time.Duration `env:"DB_MAX_CONN_LIFETIME"`
+	HostImageDirectory   string        `env:"HOST_IMAGE_DIRECTORY"`
+	LocalImageDirectory  string        `env:"LOCAL_IMAGE_DIRECTORY"`
 }
 
 func New() (*Config, error) {
 	cfg := Config{
 		Addr:                 defaultAddr,
-		LogLevel:             defaultLogLevel,
-		LogFormat:            defaultLogFormat,
 		ServerReadTimeout:    defaultServerReadTimeout,
 		ServerWriteTimeout:   defaultServerWriteTimeout,
 		ServerIdleTimeout:    defaultServerIdleTimeout,
@@ -57,6 +55,8 @@ func New() (*Config, error) {
 		DBMaxIdleConnections: defaultDBMaxIdleConnections,
 		DBMaxOpenConnections: defaultDBMaxOpenConnections,
 		DBMaxConnLifetime:    defaultDBMaxConnLifeTime,
+		HostImageDirectory:   defaultHostImageDirectory,
+		LocalImageDirectory:  defaultLocalImageDirectory,
 	}
 	// load .env file
 	if err := env.Parse(&cfg); err != nil {
