@@ -10,6 +10,7 @@ COPY vendor/ vendor
 COPY cmd/ cmd
 COPY pkg/ pkg
 COPY migrations/ migrations
+RUN mkdir -p images
 COPY thirdparty/wait-for .
 RUN chmod +x wait-for
 

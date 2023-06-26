@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,7 +12,7 @@ import (
 	"github.com/ksindhwani/imagegram/pkg/app"
 	"github.com/ksindhwani/imagegram/pkg/config"
 	"github.com/ksindhwani/imagegram/pkg/database/mysql"
-	"github.com/ksindhwani/imagegram/pkg/logger"
+	"github.com/ksindhwani/imagegram/pkg/filesystem"
 	"github.com/ksindhwani/imagegram/pkg/router"
 	"go.uber.org/zap"
 )
@@ -27,22 +28,19 @@ func main() {
 	cfg, err := config.New()
 	fatalOnError(err, "error loading configuration")
 
-	// set up logger
-	log, err := logger.New(cfg.LogLevel, cfg.LogFormat, revision)
-	fatalOnError(err, "error initializing logger")
-
-	log.Infof("application running revision %s built on %s", revision, buildTimestamp)
-
 	// initialize persistent stores
 	db, err := initializeDB(cfg)
 	fatalOnError(err, "error initializing database")
 
+	localFileSystem, err := filesystem.New(filesystem.LOCAL, cfg)
+	fatalOnError(err, "error initializing database")
+
 	// initialize application and handlers
 	deps := &app.Dependencies{
-		Revision: revision,
-		Config:   cfg,
-		DB:       db,
-		Logger:   log,
+		Revision:        revision,
+		Config:          cfg,
+		DB:              db,
+		LocalFileSystem: localFileSystem,
 	}
 	r, err := router.New(deps)
 	fatalOnError(err, "could not instantiate router")
@@ -56,7 +54,7 @@ func main() {
 	}
 
 	go func(server *http.Server) {
-		log.Infof("server running on: %s", cfg.Addr)
+		log.Print("server running on: %s", cfg.Addr)
 
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
@@ -67,9 +65,9 @@ func main() {
 	stopCh := make(chan os.Signal, 2)
 	signal.Notify(stopCh, syscall.SIGINT, syscall.SIGTERM)
 	<-stopCh
-	log.Infof("gracefully shutting down server")
+	log.Print("gracefully shutting down server")
 	if err := server.Shutdown(context.Background()); err != nil {
-		log.Errorf("error shutting server down gracefully: %v", err)
+		log.Fatalf("error shutting server down gracefully: %v", err)
 	}
 
 }

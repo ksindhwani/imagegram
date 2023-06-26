@@ -11,6 +11,7 @@ CREATE TABLE `posts` (
 
 CREATE TABLE `comments` (
     `comment_id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `user_id` INT NOT NULL,
     `post_id` INT NOT NULL,
     `comment` TEXT,
     `created_at`  DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -19,7 +20,9 @@ CREATE TABLE `comments` (
 CREATE TABLE `images` (
     `image_id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `post_id` INT NOT NULL,
-    `location` varchar(255),
-    `converted_image_location` varchar(255),
+    `image_file_name` VARCHAR(255),
+    `location` VARCHAR(255),
+    `converted_image_name` VARCHAR(255),
+    `converted_image_location` VARCHAR(255),
     `uploaded_at`  DATETIME DEFAULT CURRENT_TIMESTAMP
 );
