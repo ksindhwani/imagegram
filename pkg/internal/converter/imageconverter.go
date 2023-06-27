@@ -54,10 +54,11 @@ func convertImages(
 
 	// Process each file in the source directory
 	for _, file := range files {
-		imageFilePath := file.Location
+		imageFilePath := filepath.Join(sourceDir, file.ImageFileName)
 
 		// Check if the file is an image
 		if isImage(imageFilePath) {
+
 			// Open the image file
 			imageFile, err := os.Open(imageFilePath)
 			if err != nil {
@@ -68,6 +69,7 @@ func convertImages(
 
 			// Decode the image
 			imageExtension := strings.ToLower(filepath.Ext(imageFilePath))
+			fileWithoutExt := file.ImageFileName[:len(file.ImageFileName)-len(imageExtension)]
 			img, err := decoder.New(imageExtension).Decode(imageFile)
 			if err != nil {
 				failedConversions = addToFailedConversion(failedConversions, file, fmt.Errorf("error decoding image: %w", err))
@@ -76,8 +78,8 @@ func convertImages(
 
 			// Resize the image to length * width pixels
 			resizedImg := resize.Resize(uint(length), uint(width), img, resize.Lanczos3)
+			convertedFileName := strconv.FormatInt(file.ImageId, 10) + "converted" + fileWithoutExt + ".jpg"
 
-			convertedFileName := strconv.FormatInt(file.ImageId, 10) + "converted" + file.ImageFileName
 			// Create the destination file path
 			destinationFilePath := filepath.Join(destinationDir, convertedFileName)
 

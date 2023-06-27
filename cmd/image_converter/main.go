@@ -36,6 +36,7 @@ func main() {
 		}
 	}
 	err = imageService.UpdateConvertedLocationsForImages(successfulConversions)
+	log.Print("Conversion completed")
 	fatalOnError(err, "error saving converted image in database")
 }
 
