@@ -122,7 +122,7 @@ func (d *database) DeleteComment(commentId int64) error {
 
 }
 
-func (d *database) GetAllPostWithLast2Comments(cursor int, pageSize int) ([]AllPostsJoinQueryResult, error) {
+func (d *database) GetAllPostWithLast2Comments(cursor int, limit int) ([]AllPostsJoinQueryResult, error) {
 	// Sql Query to get all posts with last 2 comments
 	query := "SELECT " +
 		"p.post_id, p.user_id, p.caption, p.created_at, " +
@@ -139,7 +139,7 @@ func (d *database) GetAllPostWithLast2Comments(cursor int, pageSize int) ([]AllP
 		"LIMIT ?"
 
 	// Execute the query
-	rows, err := d.Db.Query(query, cursor, pageSize)
+	rows, err := d.Db.Query(query, cursor, limit)
 	if err != nil {
 		return nil, err
 	}
